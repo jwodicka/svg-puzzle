@@ -1,0 +1,16 @@
+rect.background {
+  fill: beige;
+}
+
+rect.board {
+  fill: silver;
+}
+
+.piece {
+  stroke-width: 30;
+  stroke: black;
+}
+
+svg svg {
+  overflow: visible;
+}

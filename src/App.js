@@ -1,23 +1,15 @@
-import logo from './logo.svg';
 import './App.css';
+
+import Puzzle from './Puzzle';
 
 function App() {
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <Puzzle
+        picture="img/jonathan-kemper-9tamF4J0vLk-unsplash.jpg"
+        pictureDimensions={{w: 6000, h: 4000}}
+        pieceDimensions={{w: 12, h: 8}}
+      />
     </div>
   );
 }
