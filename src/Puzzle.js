@@ -1,7 +1,7 @@
 import './Puzzle.css';
 
 import {useEffect, useState} from 'react';
-import {DraggableCore} from 'react-draggable';
+import DraggableSvg from './components/DraggableSvg';
 
 /*
 A Piece is defined by a set of edges that form a closed polygon somewhere in
@@ -112,47 +112,11 @@ function Puzzle({picture, pictureDimensions, pieceDimensions}) {
 }
 
 function Block({i, x, y, w, h}) {
-  const [pos, setPos] = useState({x: x, y: y});
-  // Offset is only relevant while dragging, and holds the offset from the point clicked
-  // to the anchor for this block.
-  useEffect(() => {
-    setPos({x: x, y: y})
-  }, [x, y]);
-
-  const [offset, setOffset] = useState({x: 0, y: 0});
-
-  // Takes a point as coordinates in screen-space and returns the SVGPoint
-  // of the same coordinates in SVG-space
-  const getSVGPoint = (svg, x, y) => {
-    const point = DOMPointReadOnly.fromPoint({x, y});
-    return point.matrixTransform(svg.getScreenCTM().inverse());
-  }
-
-  const onStart = (e, {node, x, y}) => {
-    const svg = node.farthestViewportElement
-    const point = getSVGPoint(svg, x, y);
-    setOffset({x: pos.x - point.x, y: pos.y - point.y});
-  }
-
-  const onDrag = (e, {node, x, y}) => {
-    const svg = node.farthestViewportElement
-    const point = getSVGPoint(svg, x, y);
-    setPos({x: point.x + offset.x, y: point.y + offset.y});
-  }
-
-  const onStop = (e, {node, x, y}) => {
-    const svg = node.farthestViewportElement
-    const point = getSVGPoint(svg, x, y);
-    setPos({x: point.x + offset.x, y: point.y + offset.y});
-  }
-
   return (
-    <DraggableCore onStart={onStart} onDrag={onDrag} onStop={onStop}>
-      <svg x={pos.x} y={pos.y} width={w} height={h} viewBox={`0 0 ${w} ${h}`}>
-        <rect x="0" y="0" width={w} height={h} className="piece" />
-        <use href={`#block_${i}`} x="0" y="0" />
-      </svg>
-    </DraggableCore>
+    <DraggableSvg x={x} y={y} w={w} h={h}>
+      <rect x="0" y="0" width={w} height={h} className="piece" />
+      <use href={`#block_${i}`} x="0" y="0" />
+    </DraggableSvg>
   );
 }
 
