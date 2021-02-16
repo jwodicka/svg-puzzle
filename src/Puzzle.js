@@ -1,7 +1,8 @@
 import './Puzzle.css';
 
-import {useEffect, useState} from 'react';
+import {useEffect, useState, Fragment} from 'react';
 import DraggableSvg from './components/DraggableSvg';
+import {gridSlicer} from './Slicer';
 
 /*
 A Piece is defined by a set of edges that form a closed polygon somewhere in
@@ -19,39 +20,6 @@ one Block encompassing all of the Pieces from both.
 When only one Block exists, the puzzle is solved.
 */
 
-const buildPieces = (pixelsWide, pixelsHigh, piecesWide, piecesHigh) => {
-  const pieceWidth = pixelsWide / piecesWide;
-  const pieceHeight = pixelsHigh / piecesHigh;
-
-  const rects = [];
-  const points = [];
-
-  for (let x = 0; x <= piecesWide; x += 1) {
-    const rank = [];
-    for (let y = 0; y <= piecesHigh; y += 1) {
-      rank.push(new DOMPointReadOnly(x * pieceWidth, y * pieceHeight));
-    }
-    points.push(rank);
-  }
-
-  for (let x = 0; x < piecesWide; x += 1) {
-    for (let y = 0; y < piecesHigh; y += 1) {
-      rects.push({
-        i: rects.length,
-        x: x * pieceWidth,
-        y: y * pieceHeight,
-        w: pieceWidth,
-        h: pieceHeight,
-        points: [
-          points[x][y], points[x+1][y], points[x+1][y+1], points[x][y+1]
-        ],
-      });
-    }
-  }
-
-  return rects;
-}
-
 function Puzzle({picture, pictureDimensions, pieceDimensions}) {
   const pieceSize = {
     w: pictureDimensions.w / pieceDimensions.w,
@@ -62,8 +30,10 @@ function Puzzle({picture, pictureDimensions, pieceDimensions}) {
 
   const [pieces, setPieces] = useState([]);
   useEffect(() => {
-    setPieces(buildPieces(pictureDimensions.w, pictureDimensions.h, pieceDimensions.w, pieceDimensions.h));
-  }, [pictureDimensions.w, pictureDimensions.h, pieceDimensions.w, pieceDimensions.h])
+    const {pieces} = gridSlicer({pixelDimensions: pictureDimensions, pieceCount: pieceDimensions});
+    setPieces(pieces);
+    // setPieces(buildPieces(pictureDimensions.w, pictureDimensions.h, pieceDimensions.w, pieceDimensions.h));
+  }, [pictureDimensions, pieceDimensions])
   const [blocks, setBlocks] = useState([]);
   useEffect(() => {
     const borderSize = {
@@ -93,14 +63,24 @@ function Puzzle({picture, pictureDimensions, pieceDimensions}) {
         <image id="picture"
           width={pictureDimensions.w} height={pictureDimensions.h} 
           href={picture} />
-        {blocks.map(({i, piece:{x, y, w, h}}) => (
-          <symbol id={`block_${i}`} key={`block_${i}`}
-            viewBox={`${x} ${y} ${w} ${h}`}
-            width={pieceSize.w} height={pieceSize.h}
-          >
-            <use href="#picture" />
-          </symbol>
-        ))}
+        {blocks.map(({i, piece}) => {
+          const {x, y, w, h} = piece;
+          const Polygon = piece.Polygon;
+          return (
+            <Fragment key={`${i}`}>
+              <clipPath id={`clip_${i}`}>
+                <Polygon />
+              </clipPath>
+              <symbol id={`block_${i}`}
+                viewBox={`${x} ${y} ${w} ${h}`}
+                width={pieceSize.w} height={pieceSize.h}
+                clipPath={`url(#clip_${i})`}
+              >
+                <use href="#picture" />
+              </symbol>
+            </Fragment>
+          );
+        })}
       </defs>
 
       <rect x={0} y={0} width={viewW} height={viewH} className="background"/>
@@ -114,7 +94,6 @@ function Puzzle({picture, pictureDimensions, pieceDimensions}) {
 function Block({i, x, y, w, h}) {
   return (
     <DraggableSvg x={x} y={y} w={w} h={h}>
-      <rect x="0" y="0" width={w} height={h} className="piece" />
       <use href={`#block_${i}`} x="0" y="0" />
     </DraggableSvg>
   );
