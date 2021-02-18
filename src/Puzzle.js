@@ -32,8 +32,11 @@ function Puzzle({picture, pictureDimensions, pieceDimensions}) {
   useEffect(() => {
     const {pieces} = gridSlicer({pixelDimensions: pictureDimensions, pieceCount: pieceDimensions});
     setPieces(pieces);
-    // setPieces(buildPieces(pictureDimensions.w, pictureDimensions.h, pieceDimensions.w, pieceDimensions.h));
-  }, [pictureDimensions, pieceDimensions])
+  }, [
+    // Recalculate pieces only when the actual widths or heights change.
+    pictureDimensions.w, pictureDimensions.h,
+    pieceDimensions.w, pieceDimensions.h
+  ]);
   const [blocks, setBlocks] = useState([]);
   useEffect(() => {
     const borderSize = {
@@ -55,7 +58,10 @@ function Puzzle({picture, pictureDimensions, pieceDimensions}) {
       return block;
     });
     setBlocks(newBlocks);
-  }, [pieces, pieceSize.w, pieceSize.h, pictureDimensions, pieceDimensions.w, pieceDimensions.h])
+  }, [
+    // Reposition pieces only when they are regenerated.
+    pieces,
+  ]);
 
   return (
     <svg viewBox={`0 0 ${viewW} ${viewH}`}>
@@ -73,7 +79,7 @@ function Puzzle({picture, pictureDimensions, pieceDimensions}) {
               </clipPath>
               <symbol id={`block_${i}`}
                 viewBox={`${x} ${y} ${w} ${h}`}
-                width={pieceSize.w} height={pieceSize.h}
+                width={w} height={h}
                 clipPath={`url(#clip_${i})`}
               >
                 <use href="#picture" />
