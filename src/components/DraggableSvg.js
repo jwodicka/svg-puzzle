@@ -1,11 +1,11 @@
 import {useEffect, useRef, useState} from 'react';
 import {DraggableCore} from 'react-draggable';
 
-function DraggableSvg({x, y, w, h, children}) {
+function DraggableSvg({x, y, w, h, onPlace=()=>{}, children}) {
   const svgRef = useRef(null);
-  const [pos, setPos] = useState({x: x, y: y});
+  const [pos, setPos] = useState(new DOMPointReadOnly(x, y));
   useEffect(() => {
-    setPos({x: x, y: y})
+    setPos(new DOMPointReadOnly(x, y));
   }, [x, y]);
 
   // Offset is only relevant while dragging, and holds the offset from the point clicked
@@ -15,8 +15,14 @@ function DraggableSvg({x, y, w, h, children}) {
   // Takes a point as coordinates in screen-space and returns the SVGPoint
   // of the same coordinates in SVG-space
   const getSVGPoint = (svg, x, y) => {
-    const point = DOMPointReadOnly.fromPoint({x, y});
+    const point = new DOMPointReadOnly(x, y);
     return point.matrixTransform(svg.getScreenCTM().inverse());
+  }
+
+  // Performs getSVGPoint, then applies any stored offset.
+  const getOffsetPoint = (svg, x, y) => {
+    const point = getSVGPoint(svg, x, y);
+    return new DOMPointReadOnly(point.x + offset.x, point.y + offset.y);
   }
 
   const onStart = (e, {node, x, y}) => {
@@ -27,14 +33,14 @@ function DraggableSvg({x, y, w, h, children}) {
 
   const onDrag = (e, {node, x, y}) => {
     const svg = node.farthestViewportElement
-    const point = getSVGPoint(svg, x, y);
-    setPos({x: point.x + offset.x, y: point.y + offset.y});
+    setPos(getOffsetPoint(svg, x, y));
   }
 
   const onStop = (e, {node, x, y}) => {
     const svg = node.farthestViewportElement
-    const point = getSVGPoint(svg, x, y);
-    setPos({x: point.x + offset.x, y: point.y + offset.y});
+    const offsetPoint = getOffsetPoint(svg, x, y)
+    setPos(offsetPoint);
+    onPlace(offsetPoint);
   }
 
 

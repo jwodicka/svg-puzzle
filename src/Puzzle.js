@@ -48,14 +48,10 @@ function Puzzle({picture, pictureDimensions, pieceDimensions}) {
       h: (pictureDimensions.h - (borderSize.h * 2)) / (pieceDimensions.h - 1),
     } 
     const newBlocks = pieces.map((piece) => {
-      const {i, x, y, w, h} = piece;
-      const block = {
-        i, w, h,
-        x: x + borderSize.w + ((x / pieceSize.w) * gutterSize.w),
-        y: y + borderSize.h + ((y / pieceSize.h) * gutterSize.h),
-        piece,
-      }
-      return block;
+      const {x, y} = piece;
+      const initialX = x + borderSize.w + ((x / pieceSize.w) * gutterSize.w);
+      const initialY = y + borderSize.h + ((y / pieceSize.h) * gutterSize.h);
+      return new RenderableBlock(piece, initialX, initialY)
     });
     setBlocks(newBlocks);
   }, [
@@ -63,46 +59,70 @@ function Puzzle({picture, pictureDimensions, pieceDimensions}) {
     pieces,
   ]);
 
+  // When a block is placed (i.e., when the drag ends), this method will
+  // be invoked. Update the canonical X and Y of the block, and eventually
+  // perform collision-detection to see if we can merge with another block.
+  const onPlace = (block) => (point) => {
+    setBlocks(blocks.map((b) => {
+      if (b.id === block.id) {
+        return new RenderableBlock(block.piece, point.x, point.y);
+      }
+      return b
+    }));
+  }
+
   return (
     <svg viewBox={`0 0 ${viewW} ${viewH}`}>
       <defs>
         <image id="picture"
           width={pictureDimensions.w} height={pictureDimensions.h} 
           href={picture} />
-        {blocks.map(({i, piece}) => {
-          const {x, y, w, h} = piece;
-          const Polygon = piece.Polygon;
-          return (
-            <Fragment key={`${i}`}>
-              <clipPath id={`clip_${i}`}>
-                <Polygon />
-              </clipPath>
-              <symbol id={`block_${i}`}
-                viewBox={`${x} ${y} ${w} ${h}`}
-                width={w} height={h}
-                clipPath={`url(#clip_${i})`}
-              >
-                <use href="#picture" />
-              </symbol>
-            </Fragment>
-          );
-        })}
+        {blocks.map((block) => <BlockDefs key={block.id} block={block}/>)}
       </defs>
 
       <rect x={0} y={0} width={viewW} height={viewH} className="background"/>
-      <rect x={viewW / 4} y={viewH / 4} width={pictureDimensions.w} height={pictureDimensions.h} className="board"/>
+      <rect x={viewW / 4} y={viewH / 4} width={pictureDimensions.w} height={pictureDimensions.h} className="board" />
 
-      {blocks.map((block => <Block key={block.i} {...block} />))}
+      {blocks.map(
+        (block) => <Block key={block.id} block={block} onPlace={onPlace(block)}/>
+      )}
     </svg>
   );
 }
 
-function Block({i, x, y, w, h}) {
+const BlockDefs = ({block}) => {
+  const id = block.id;
+  const {x, y, w, h} = block.piece;
+  const Polygon = block.piece.Polygon;
   return (
-    <DraggableSvg x={x} y={y} w={w} h={h}>
-      <use href={`#block_${i}`} x="0" y="0" />
-    </DraggableSvg>
+    <Fragment>
+      <clipPath id={`clip_${id}`}>
+        <Polygon />
+      </clipPath>
+      <symbol id={`block_${id}`}
+        viewBox={`${x} ${y} ${w} ${h}`}
+        width={w} height={h}
+        clipPath={`url(#clip_${id})`}
+      >
+        <use href="#picture" />
+      </symbol>
+    </Fragment>
   );
+};
+
+const Block = ({block, onPlace=()=>{}}) => {
+  return (<DraggableSvg x={block.x} y={block.y} w={block.piece.w} h={block.piece.h} onPlace={onPlace}>
+    <use href={`#block_${block.id}`} x="0" y="0" />
+  </DraggableSvg>)
+}
+
+class RenderableBlock {
+  constructor(piece, initialX, initialY) {
+    this.id = piece.id;
+    this.piece = piece;
+    this.x = initialX;
+    this.y = initialY;
+  }
 }
 
 export default Puzzle;
