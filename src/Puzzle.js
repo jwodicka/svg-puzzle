@@ -3,6 +3,7 @@ import './Puzzle.css';
 import {useEffect, useState, Fragment} from 'react';
 import DraggableSvg from './components/DraggableSvg';
 import {gridSlicer} from './Slicer';
+import Point from './classes/Point';
 
 /*
 A Piece is defined by a set of edges that form a closed polygon somewhere in
@@ -21,7 +22,7 @@ When only one Block exists, the puzzle is solved.
 */
 
 const pointName = (point) => `(${point.x.toFixed(0)},${point.y.toFixed(0)})`
-const addPoints = (a, b) => new DOMPointReadOnly(a.x + b.x, a.y + b.y);
+const addPoints = (a, b) => new Point(a.x + b.x, a.y + b.y);
 const setIntersection = (setA, setB) => {
   let _intersection = new Set()
   for (let elem of setB) {
@@ -78,7 +79,7 @@ function Puzzle({picture, pictureDimensions, pieceDimensions}) {
   // be invoked. Update the canonical X and Y of the block, and eventually
   // perform collision-detection to see if we can merge with another block.
   const onPlace = (block) => (point) => {
-    console.log(`Block ${block.id} placed at ${pointName(point)}`);
+    console.log(`Block ${block.id} placed at ${point}`);
 
     const blockAnchor = block.piece.anchor;
 
@@ -95,7 +96,7 @@ function Puzzle({picture, pictureDimensions, pieceDimensions}) {
       // relativeEdge is the offset of this edge's coordinate-pair relative to the block's anchor
       const relativeEdge = edge.relativeTo(blockAnchor);
       // currentEdge is the computed position of this edge in image-space after the drop.
-      const currentEdge = [addPoints(relativeEdge[0], point), addPoints(relativeEdge[1], point)];
+      const currentEdge = [relativeEdge[0].add(point), relativeEdge[1].add(point)];
       
       const neighborRelativeEdge = edge.relativeTo(neighbor.piece.anchor);
       const neighborCurrentEdge = [
