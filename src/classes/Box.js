@@ -17,10 +17,19 @@ export default class Box {
     return new Box(new Point(x, y), w, h);
   }
 
+  static fromBoxes(boxes) {
+    const points = boxes.map((b) => [b.anchor, b.oppositeCorner]).flat();
+    return Box.fromPoints(points);
+  }
+
   constructor(anchor, width, height) {
     this.anchor = anchor;
     this.width = width;
     this.height = height;
+  }
+
+  get oppositeCorner() {
+    return new Point(this.anchor.x + this.width, this.anchor.y + this.height);
   }
 
   get viewBox() {

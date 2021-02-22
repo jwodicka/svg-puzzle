@@ -19,4 +19,17 @@ export default class Line {
   distance(line) {
     return Math.max(this.a.distance(line.a), this.b.distance(line.b));
   }
+
+  polylineWith(lines) {
+    const remaining = [...lines]; // remaining will be mutated as we work.
+    const result = [];
+    for (let current = this.a; remaining.length > 0; ) {
+      result.push(current);
+      const i = remaining.findIndex((l) => l.a ===  current || l.b === current);
+      const [next] = remaining.splice(i, 1);
+      current = (current === next.a) ? next.b : next.a;
+    }
+    result.push(this.b);
+    return result;
+  }
 }

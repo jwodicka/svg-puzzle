@@ -84,7 +84,7 @@ function Puzzle({picture, pictureDimensions, pieceDimensions}) {
       }
     }
 
-    const blocks = RenderableBlock.fromPieces(pieces);
+    const blocks = pieces.map(RenderableBlock.fromPiece);
     setBlocks(distributeBlocks(blocks, positions));
   }, [pieces]);
 
@@ -99,6 +99,9 @@ function Puzzle({picture, pictureDimensions, pieceDimensions}) {
     // TODO: We currently iterate all blocks to find the ones with matching edges. We could probably
     //       look them up more directly if this is an efficiency issue.
     const neighbors = blocks.filter((b) => setIntersection(b.edges, block.edges).size > 0 && b !== block)
+    const merged = new Set();
+
+    let newBlock = block.moveTo(point);
 
     for (const edge of block.edges) {
       const sharedNeighbors = neighbors.filter((b) => b.edges.has(edge));
@@ -107,6 +110,10 @@ function Puzzle({picture, pictureDimensions, pieceDimensions}) {
         continue;
       }
       const [neighbor] = sharedNeighbors;
+      if (merged.has(neighbor)) {
+        // Don't merge with the same neighbor twice, even if multiple edges were in common.
+        continue;
+      }
       // relativeEdge is the offset of this edge's coordinate-pair relative to the block's anchor
       const relativeEdge = edge.relativeTo(blockAnchor);
       // currentEdge is the computed position of this edge in image-space after the drop.
@@ -114,18 +121,24 @@ function Puzzle({picture, pictureDimensions, pieceDimensions}) {
       
       const neighborRelativeEdge = edge.relativeTo(neighbor.imageBounds.anchor);
       const neighborCurrentEdge = neighborRelativeEdge.plus(neighbor.anchor);
-      
-      console.log(currentEdge);
-      console.log(neighborCurrentEdge);
+
       console.log(currentEdge.distance(neighborCurrentEdge));
+
+      if (currentEdge.distance(neighborCurrentEdge) < 40) {
+        merged.add(neighbor);
+        newBlock = newBlock.mergeWith(neighbor);
+      }
     }
 
     setBlocks(blocks.map((b) => {
-      if (b.id === block.id) {
-        return block.moveTo(point);
+      if (b.sharesPiecesWith(newBlock)) {
+        if (b.id === newBlock.id) {
+          return newBlock;
+        }
+        return null;
       }
       return b
-    }));
+    }).filter(b => !!b));
   }
 
   return (
