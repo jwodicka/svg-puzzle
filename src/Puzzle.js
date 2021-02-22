@@ -20,6 +20,21 @@ one Block encompassing all of the Pieces from both.
 When only one Block exists, the puzzle is solved.
 */
 
+const pointName = (point) => `(${point.x.toFixed(0)},${point.y.toFixed(0)})`
+const addPoints = (a, b) => new DOMPointReadOnly(a.x + b.x, a.y + b.y);
+const setIntersection = (setA, setB) => {
+  let _intersection = new Set()
+  for (let elem of setB) {
+      if (setA.has(elem)) {
+          _intersection.add(elem)
+      }
+  }
+  return _intersection
+}
+const edgeName = ([a, b]) => `${pointName(a)}-${pointName(b)}`
+
+const pointDistance = (a, b) => Math.sqrt(Math.pow(a.x - b.x, 2) + Math.pow(a.y - b.y, 2));
+
 function Puzzle({picture, pictureDimensions, pieceDimensions}) {
   const pieceSize = {
     w: pictureDimensions.w / pieceDimensions.w,
@@ -63,6 +78,36 @@ function Puzzle({picture, pictureDimensions, pieceDimensions}) {
   // be invoked. Update the canonical X and Y of the block, and eventually
   // perform collision-detection to see if we can merge with another block.
   const onPlace = (block) => (point) => {
+    console.log(`Block ${block.id} placed at ${pointName(point)}`);
+
+    const blockAnchor = block.piece.anchor;
+
+    // TODO: We currently iterate all blocks to find the ones with matching edges. We could probably
+    //       look them up more directly if this is an efficiency issue.
+    const neighbors = blocks.filter((b) => setIntersection(b.piece.edges, block.piece.edges).size > 0 && b !== block)
+
+    for (const edge of block.piece.edges) {
+      const sharedNeighbors = neighbors.filter((b) => b.piece.edges.has(edge));
+      if (sharedNeighbors.length !== 1) {
+        continue;
+      }
+      const [neighbor] = sharedNeighbors;
+      // relativeEdge is the offset of this edge's coordinate-pair relative to the block's anchor
+      const relativeEdge = edge.relativeTo(blockAnchor);
+      // currentEdge is the computed position of this edge in image-space after the drop.
+      const currentEdge = [addPoints(relativeEdge[0], point), addPoints(relativeEdge[1], point)];
+      
+      const neighborRelativeEdge = edge.relativeTo(neighbor.piece.anchor);
+      const neighborCurrentEdge = [
+        addPoints(neighborRelativeEdge[0], neighbor.anchor),
+        addPoints(neighborRelativeEdge[1], neighbor.anchor)
+      ]
+      
+      console.log(edgeName(currentEdge));
+      console.log(edgeName(neighborCurrentEdge));
+      console.log(pointDistance(currentEdge[0], neighborCurrentEdge[0]), pointDistance(currentEdge[1], neighborCurrentEdge[1]));
+    }
+
     setBlocks(blocks.map((b) => {
       if (b.id === block.id) {
         return new RenderableBlock(block.piece, point.x, point.y);
@@ -122,6 +167,7 @@ class RenderableBlock {
     this.piece = piece;
     this.x = initialX;
     this.y = initialY;
+    this.anchor = new DOMPointReadOnly(initialX, initialY);
   }
 }
 

@@ -9,18 +9,31 @@ All slicers return a collection of Pieces and a collection of Edges.
 
 // A Point, for our purposes, is a DomPointReadOnly.
 
-const pointName = (point) => `(${point.x},${point.y})`;
+// ASSUMPTION: We're never doing slicing that's finer than one pixel in image-space,
+//             so we can truncate coordinates to their whole component.
+const pointName = (point) => `(${point.x.toFixed(0)},${point.y.toFixed(0)})`
 
 class Edge {
   constructor(pointA, pointB) {
     this.pointA = pointA;
     this.pointB = pointB;
-    this.pieces = [];
+    this.pieces = new Set();
+  }
+
+  relativeTo(point) {
+    return [
+      new DOMPointReadOnly(this.pointA.x - point.x, this.pointA.y - point.y),
+      new DOMPointReadOnly(this.pointB.x - point.x, this.pointB.y - point.y),
+    ]
   }
 
   linkPiece(piece) {
-    this.pieces.push(piece);
-    piece.edges.push(this);
+    this.pieces.add(piece);
+    piece.edges.add(this);
+  }
+
+  toString() {
+    return `Edge[${pointName(this.pointA)}-${pointName(this.pointB)}]`
   }
 }
 
@@ -30,7 +43,7 @@ class Piece {
     this.id = id;
     this.i = id; // Used by legacy code
     this.points = points;
-    this.edges = [];
+    this.edges = new Set();
 
     this.x = Infinity; // Used by legacy code
     this.y = Infinity; // Used by legacy code
@@ -44,6 +57,14 @@ class Piece {
     }
     this.w = xMax - this.x; // Used by legacy code
     this.h = yMax - this.y; // Used by legacy code
+
+    this.anchor = new DOMPointReadOnly(this.x, this.y);
+
+    this.relativePoints = points.map((p) => new DOMPointReadOnly(p.x - this.x, p.y - this.y));
+  }
+
+  relativeEdges(point) {
+    return this.edges.map((e) => e.relativeTo(point));
   }
 
   // The Polygon for a given piece is the actual underlying shape before edge effects are applied.
