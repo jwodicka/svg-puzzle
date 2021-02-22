@@ -2,7 +2,6 @@ import './Puzzle.css';
 
 import {useEffect, useState} from 'react';
 import {gridSlicer} from './Slicer';
-import Point from './classes/Point';
 import Block from './components/Block';
 
 /*
@@ -30,8 +29,6 @@ const setIntersection = (setA, setB) => {
   }
   return _intersection
 }
-
-const pointDistance = (a, b) => Math.sqrt(Math.pow(a.x - b.x, 2) + Math.pow(a.y - b.y, 2));
 
 function Puzzle({picture, pictureDimensions, pieceDimensions}) {
   const pieceSize = {
@@ -100,7 +97,7 @@ function Puzzle({picture, pictureDimensions, pieceDimensions}) {
       
       console.log(currentEdge);
       console.log(neighborCurrentEdge);
-      console.log(pointDistance(currentEdge.a, neighborCurrentEdge.a), pointDistance(currentEdge.b, neighborCurrentEdge.b));
+      console.log(currentEdge.distance(neighborCurrentEdge));
     }
 
     setBlocks(blocks.map((b) => {

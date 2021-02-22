@@ -36,4 +36,7 @@ export default class Point {
   minus(p) {
     return new Point(this._x - p.x, this._y - p.y);
   }
+  distance (p) {
+    return Math.sqrt(Math.pow(this._x - p.x, 2) + Math.pow(this._y - p.y, 2));
+  }
 }

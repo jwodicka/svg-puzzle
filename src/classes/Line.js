@@ -15,4 +15,8 @@ export default class Line {
   plus(point) {
     return new Line(this.a.plus(point), this.b.plus(point))
   }
+
+  distance(line) {
+    return Math.max(this.a.distance(line.a), this.b.distance(line.b));
+  }
 }
