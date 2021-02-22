@@ -19,11 +19,21 @@ export default class Point {
     return new DOMPointReadOnly(this._x, this._y);
   }
 
+  toSVGSpace(svg) {
+    return Point.fromDOMPoint(this.DOMPoint.matrixTransform(svg.getScreenCTM().inverse()));
+  }
+
   toString() {
     return `(${this._x.toFixed(0)},${this._y.toFixed(0)})`;
   }
 
   add(p) {
     return new Point(this._x + p.x, this._y + p.y)
+  }
+  plus(p) {
+    return new Point(this._x + p.x, this._y + p.y)
+  }
+  minus(p) {
+    return new Point(this._x - p.x, this._y - p.y);
   }
 }
