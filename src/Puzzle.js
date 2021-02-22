@@ -1,9 +1,9 @@
 import './Puzzle.css';
 
-import {useEffect, useState, Fragment} from 'react';
-import DraggableSvg from './components/DraggableSvg';
+import {useEffect, useState} from 'react';
 import {gridSlicer} from './Slicer';
 import Point from './classes/Point';
+import Block from './components/Block';
 
 /*
 A Piece is defined by a set of edges that form a closed polygon somewhere in
@@ -21,7 +21,6 @@ one Block encompassing all of the Pieces from both.
 When only one Block exists, the puzzle is solved.
 */
 
-const pointName = (point) => `(${point.x.toFixed(0)},${point.y.toFixed(0)})`
 const addPoints = (a, b) => new Point(a.x + b.x, a.y + b.y);
 const setIntersection = (setA, setB) => {
   let _intersection = new Set()
@@ -32,7 +31,7 @@ const setIntersection = (setA, setB) => {
   }
   return _intersection
 }
-const edgeName = ([a, b]) => `${pointName(a)}-${pointName(b)}`
+const edgeName = ([a, b]) => `${a}-${b}`
 
 const pointDistance = (a, b) => Math.sqrt(Math.pow(a.x - b.x, 2) + Math.pow(a.y - b.y, 2));
 
@@ -123,7 +122,7 @@ function Puzzle({picture, pictureDimensions, pieceDimensions}) {
         <image id="picture"
           width={pictureDimensions.w} height={pictureDimensions.h} 
           href={picture} />
-        {blocks.map((block) => <BlockDefs key={block.id} block={block}/>)}
+        {blocks.map((block) => <Block.Defs key={block.id} block={block}/>)}
       </defs>
 
       <rect x={0} y={0} width={viewW} height={viewH} className="background"/>
@@ -134,32 +133,6 @@ function Puzzle({picture, pictureDimensions, pieceDimensions}) {
       )}
     </svg>
   );
-}
-
-const BlockDefs = ({block}) => {
-  const id = block.id;
-  const {x, y, w, h} = block.piece;
-  const Polygon = block.piece.Polygon;
-  return (
-    <Fragment>
-      <clipPath id={`clip_${id}`}>
-        <Polygon />
-      </clipPath>
-      <symbol id={`block_${id}`}
-        viewBox={`${x} ${y} ${w} ${h}`}
-        width={w} height={h}
-        clipPath={`url(#clip_${id})`}
-      >
-        <use href="#picture" />
-      </symbol>
-    </Fragment>
-  );
-};
-
-const Block = ({block, onPlace=()=>{}}) => {
-  return (<DraggableSvg x={block.x} y={block.y} w={block.piece.w} h={block.piece.h} onPlace={onPlace}>
-    <use href={`#block_${block.id}`} x="0" y="0" />
-  </DraggableSvg>)
 }
 
 class RenderableBlock {
