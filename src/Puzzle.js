@@ -94,7 +94,7 @@ function Puzzle({picture, pictureDimensions, pieceDimensions}) {
   const onPlace = (block) => (point) => {
     console.log(`Block ${block.id} placed at ${point}`);
 
-    const blockAnchor = block.anchor;
+    const blockAnchor = block.imageBounds.anchor;
 
     // TODO: We currently iterate all blocks to find the ones with matching edges. We could probably
     //       look them up more directly if this is an efficiency issue.
@@ -112,7 +112,7 @@ function Puzzle({picture, pictureDimensions, pieceDimensions}) {
       // currentEdge is the computed position of this edge in image-space after the drop.
       const currentEdge = relativeEdge.plus(point);
       
-      const neighborRelativeEdge = edge.relativeTo(neighbor.anchor);
+      const neighborRelativeEdge = edge.relativeTo(neighbor.imageBounds.anchor);
       const neighborCurrentEdge = neighborRelativeEdge.plus(neighbor.anchor);
       
       console.log(currentEdge);
