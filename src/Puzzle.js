@@ -21,7 +21,6 @@ one Block encompassing all of the Pieces from both.
 When only one Block exists, the puzzle is solved.
 */
 
-const addPoints = (a, b) => new Point(a.x + b.x, a.y + b.y);
 const setIntersection = (setA, setB) => {
   let _intersection = new Set()
   for (let elem of setB) {
@@ -31,7 +30,6 @@ const setIntersection = (setA, setB) => {
   }
   return _intersection
 }
-const edgeName = ([a, b]) => `${a}-${b}`
 
 const pointDistance = (a, b) => Math.sqrt(Math.pow(a.x - b.x, 2) + Math.pow(a.y - b.y, 2));
 
