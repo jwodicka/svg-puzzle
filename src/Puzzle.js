@@ -94,14 +94,14 @@ function Puzzle({picture, pictureDimensions, pieceDimensions}) {
   const onPlace = (block) => (point) => {
     console.log(`Block ${block.id} placed at ${point}`);
 
-    const blockAnchor = block.piece.anchor;
+    const blockAnchor = block.anchor;
 
     // TODO: We currently iterate all blocks to find the ones with matching edges. We could probably
     //       look them up more directly if this is an efficiency issue.
-    const neighbors = blocks.filter((b) => setIntersection(b.piece.edges, block.piece.edges).size > 0 && b !== block)
+    const neighbors = blocks.filter((b) => setIntersection(b.edges, block.edges).size > 0 && b !== block)
 
-    for (const edge of block.piece.edges) {
-      const sharedNeighbors = neighbors.filter((b) => b.piece.edges.has(edge));
+    for (const edge of block.edges) {
+      const sharedNeighbors = neighbors.filter((b) => b.edges.has(edge));
       // If this edge has no neighbor, we're done.
       if (sharedNeighbors.length !== 1) {
         continue;
@@ -112,7 +112,7 @@ function Puzzle({picture, pictureDimensions, pieceDimensions}) {
       // currentEdge is the computed position of this edge in image-space after the drop.
       const currentEdge = relativeEdge.plus(point);
       
-      const neighborRelativeEdge = edge.relativeTo(neighbor.piece.anchor);
+      const neighborRelativeEdge = edge.relativeTo(neighbor.anchor);
       const neighborCurrentEdge = neighborRelativeEdge.plus(neighbor.anchor);
       
       console.log(currentEdge);
@@ -122,7 +122,7 @@ function Puzzle({picture, pictureDimensions, pieceDimensions}) {
 
     setBlocks(blocks.map((b) => {
       if (b.id === block.id) {
-        return new RenderableBlock(block.piece, point);
+        return block.moveTo(point);
       }
       return b
     }));

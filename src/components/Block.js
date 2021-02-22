@@ -8,16 +8,15 @@ const Block = ({block, onPlace=()=>{}}) => {
 }
 
 Block.Defs = ({block}) => {
-  const id = block.id;
-  const {bounds, Polygon} = block.piece;
+  const {id, imageBounds, Polygon} = block;
   return (
     <Fragment>
       <clipPath id={`clip_${id}`}>
         <Polygon />
       </clipPath>
       <symbol id={`block_${id}`}
-        viewBox={bounds.viewBox}
-        width={bounds.width} height={bounds.height}
+        viewBox={imageBounds.viewBox}
+        width={imageBounds.width} height={imageBounds.height}
         clipPath={`url(#clip_${id})`}
       >
         <use href="#picture" />
