@@ -3,6 +3,8 @@ import './Puzzle.css';
 import {useEffect, useState} from 'react';
 import {gridSlicer} from './Slicer';
 import Block from './components/Block';
+import RenderableBlock from './classes/Block';
+import Point from './classes/Point';
 
 /*
 A Piece is defined by a set of edges that form a closed polygon somewhere in
@@ -30,6 +32,18 @@ const setIntersection = (setA, setB) => {
   return _intersection
 }
 
+const shuffle = (original) => {
+  const array = [...original];
+  for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+}
+
+const distributeBlocks = (blocks, positions) =>
+  shuffle(blocks).map((block) => block.moveTo(positions.pop()));
+
 function Puzzle({picture, pictureDimensions, pieceDimensions}) {
   const pieceSize = {
     w: pictureDimensions.w / pieceDimensions.w,
@@ -48,6 +62,8 @@ function Puzzle({picture, pictureDimensions, pieceDimensions}) {
     pieceDimensions.w, pieceDimensions.h
   ]);
   const [blocks, setBlocks] = useState([]);
+
+  // Generate blocks from the pieces and shuffle them across the grid.
   useEffect(() => {
     const borderSize = {
       w: pieceSize.w / 4,
@@ -56,18 +72,21 @@ function Puzzle({picture, pictureDimensions, pieceDimensions}) {
     const gutterSize = {
       w: (pictureDimensions.w - (borderSize.w * 2)) / (pieceDimensions.w - 1),
       h: (pictureDimensions.h - (borderSize.h * 2)) / (pieceDimensions.h - 1),
-    } 
-    const newBlocks = pieces.map((piece) => {
-      const {x, y} = piece;
-      const initialX = x + borderSize.w + ((x / pieceSize.w) * gutterSize.w);
-      const initialY = y + borderSize.h + ((y / pieceSize.h) * gutterSize.h);
-      return new RenderableBlock(piece, initialX, initialY)
-    });
-    setBlocks(newBlocks);
-  }, [
-    // Reposition pieces only when they are regenerated.
-    pieces,
-  ]);
+    }
+
+    const positions = [];
+    for (let x = 0; x < pieceDimensions.w; x++) {
+      for (let y = 0; y < pieceDimensions.h; y++) {
+        positions.push(new Point(
+          borderSize.w + x * (pieceSize.w + gutterSize.w),
+          borderSize.h + y * (pieceSize.h + gutterSize.h),
+        ));
+      }
+    }
+
+    const blocks = RenderableBlock.fromPieces(pieces);
+    setBlocks(distributeBlocks(blocks, positions));
+  }, [pieces]);
 
   // When a block is placed (i.e., when the drag ends), this method will
   // be invoked. Update the canonical X and Y of the block, and eventually
@@ -102,7 +121,7 @@ function Puzzle({picture, pictureDimensions, pieceDimensions}) {
 
     setBlocks(blocks.map((b) => {
       if (b.id === block.id) {
-        return new RenderableBlock(block.piece, point.x, point.y);
+        return new RenderableBlock(block.piece, point);
       }
       return b
     }));
@@ -125,16 +144,6 @@ function Puzzle({picture, pictureDimensions, pieceDimensions}) {
       )}
     </svg>
   );
-}
-
-class RenderableBlock {
-  constructor(piece, initialX, initialY) {
-    this.id = piece.id;
-    this.piece = piece;
-    this.x = initialX;
-    this.y = initialY;
-    this.anchor = new DOMPointReadOnly(initialX, initialY);
-  }
 }
 
 export default Puzzle;
