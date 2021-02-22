@@ -2,25 +2,18 @@ import {Fragment} from 'react';
 import DraggableSvg from './DraggableSvg';
 
 const Block = ({block, onPlace=()=>{}}) => {
-  return (<DraggableSvg bounds={block.bounds} onPlace={onPlace}>
-    <use href={`#block_${block.id}`} x="0" y="0" />
+  return (<DraggableSvg bounds={block.bounds} viewBounds={block.imageBounds} onPlace={onPlace}>
+    <use href="#picture" clipPath={`url(#clip_${block.id})`} />
   </DraggableSvg>)
 }
 
 Block.Defs = ({block}) => {
-  const {id, imageBounds, Polygon} = block;
+  const {id, Polygon} = block;
   return (
     <Fragment>
       <clipPath id={`clip_${id}`}>
         <Polygon />
       </clipPath>
-      <symbol id={`block_${id}`}
-        viewBox={imageBounds.viewBox}
-        width={imageBounds.width} height={imageBounds.height}
-        clipPath={`url(#clip_${id})`}
-      >
-        <use href="#picture" />
-      </symbol>
     </Fragment>
   );
 };

@@ -2,7 +2,7 @@ import {useEffect, useRef, useState} from 'react';
 import {DraggableCore} from 'react-draggable';
 import Point from '../classes/Point';
 
-function DraggableSvg({bounds, onPlace=()=>{}, children}) {
+function DraggableSvg({bounds, viewBounds, onPlace=()=>{}, children}) {
   const svgRef = useRef(null);
   const [pos, setPos] = useState(bounds.anchor);
   useEffect(() => setPos(bounds.anchor), [bounds.anchor]);
@@ -37,7 +37,7 @@ function DraggableSvg({bounds, onPlace=()=>{}, children}) {
       <svg ref={svgRef}
         x={pos.x} y={pos.y}
         width={bounds.width} height={bounds.height} 
-        viewBox={`0 0 ${bounds.width} ${bounds.height}`}
+        viewBox={viewBounds.viewBox}
       >
         {children}
       </svg>
