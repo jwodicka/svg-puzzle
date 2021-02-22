@@ -1,17 +1,17 @@
-import Point from './Point';
+import Line from './Line';
 
 export default class Edge {
-  constructor(pointA, pointB) {
-    this.pointA = pointA;
-    this.pointB = pointB;
+  static fromPoints(a, b) {
+    return new Edge(new Line(a, b));
+  }
+
+  constructor(line) {
+    this.line = line;
     this.pieces = new Set();
   }
 
   relativeTo(point) {
-    return [
-      new Point(this.pointA.x - point.x, this.pointA.y - point.y),
-      new Point(this.pointB.x - point.x, this.pointB.y - point.y),
-    ]
+    return this.line.minus(point);
   }
 
   linkPiece(piece) {
@@ -20,6 +20,6 @@ export default class Edge {
   }
 
   toString() {
-    return `Edge[${this.pointA}-${this.pointB}]`;
+    return `Edge[${this.line.a}-${this.line.b}]`;
   }
 }

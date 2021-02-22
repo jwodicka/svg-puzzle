@@ -63,7 +63,7 @@ export const gridSlicer = ({pixelDimensions, pieceCount}) => {
         if (!(bName in edges)) {
           edges[bName] = {};
         }
-        edges[aName][bName] = new Edge(point, prevPoint);
+        edges[aName][bName] = Edge.fromPoints(point, prevPoint);
         edges[bName][aName] = edges[aName][bName];
         edges[aName][bName].linkPiece(piece);
       }

@@ -95,17 +95,14 @@ function Puzzle({picture, pictureDimensions, pieceDimensions}) {
       // relativeEdge is the offset of this edge's coordinate-pair relative to the block's anchor
       const relativeEdge = edge.relativeTo(blockAnchor);
       // currentEdge is the computed position of this edge in image-space after the drop.
-      const currentEdge = [relativeEdge[0].add(point), relativeEdge[1].add(point)];
+      const currentEdge = relativeEdge.plus(point);
       
       const neighborRelativeEdge = edge.relativeTo(neighbor.piece.anchor);
-      const neighborCurrentEdge = [
-        addPoints(neighborRelativeEdge[0], neighbor.anchor),
-        addPoints(neighborRelativeEdge[1], neighbor.anchor)
-      ]
+      const neighborCurrentEdge = neighborRelativeEdge.plus(neighbor.anchor);
       
-      console.log(edgeName(currentEdge));
-      console.log(edgeName(neighborCurrentEdge));
-      console.log(pointDistance(currentEdge[0], neighborCurrentEdge[0]), pointDistance(currentEdge[1], neighborCurrentEdge[1]));
+      console.log(currentEdge);
+      console.log(neighborCurrentEdge);
+      console.log(pointDistance(currentEdge.a, neighborCurrentEdge.a), pointDistance(currentEdge.b, neighborCurrentEdge.b));
     }
 
     setBlocks(blocks.map((b) => {
