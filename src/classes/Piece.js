@@ -1,4 +1,4 @@
-import Point from './Point';
+import Box from './Box';
 
 // A Piece is defined by a sequence of Points.
 export default class Piece {
@@ -8,22 +8,19 @@ export default class Piece {
     this.points = points;
     this.edges = new Set();
 
-    this.x = Infinity; // Used by legacy code
-    this.y = Infinity; // Used by legacy code
-    let xMax = 0;
-    let yMax = 0;
-    for (const p of points) {
-      this.x = Math.min(this.x, p.x);
-      this.y = Math.min(this.y, p.y);
-      xMax = Math.max(xMax, p.x);
-      yMax = Math.max(yMax, p.y);
-    }
-    this.w = xMax - this.x; // Used by legacy code
-    this.h = yMax - this.y; // Used by legacy code
+    this.bounds = Box.fromPoints(points);
 
-    this.anchor = new Point(this.x, this.y);
+    // this.relativePoints = points.map((p) => new Point(p.x - this.x, p.y - this.y));
+  }
 
-    this.relativePoints = points.map((p) => new Point(p.x - this.x, p.y - this.y));
+  get anchor() {
+    return this.bounds.anchor;
+  }
+  get width() {
+    return this.bounds.width;
+  }
+  get height() {
+    return this.bounds.height;
   }
 
   relativeEdges(point) {

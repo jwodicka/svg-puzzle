@@ -6,13 +6,11 @@ export default class Block {
   constructor(piece, position) {
     this.id = piece.id;
     this.piece = piece;
-    this.x = position.x;
-    this.y = position.y;
     this.anchor = position;
+    this.bounds = piece.bounds.anchorAt(position);
   }
 
   moveTo(position) {
     return new Block(this.piece, position);
   }
 }
-

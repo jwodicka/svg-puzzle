@@ -102,6 +102,7 @@ function Puzzle({picture, pictureDimensions, pieceDimensions}) {
 
     for (const edge of block.piece.edges) {
       const sharedNeighbors = neighbors.filter((b) => b.piece.edges.has(edge));
+      // If this edge has no neighbor, we're done.
       if (sharedNeighbors.length !== 1) {
         continue;
       }

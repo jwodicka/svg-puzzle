@@ -2,10 +2,10 @@ import {useEffect, useRef, useState} from 'react';
 import {DraggableCore} from 'react-draggable';
 import Point from '../classes/Point';
 
-function DraggableSvg({x, y, w, h, onPlace=()=>{}, children}) {
+function DraggableSvg({bounds, onPlace=()=>{}, children}) {
   const svgRef = useRef(null);
-  const [pos, setPos] = useState(new Point(x, y));
-  useEffect(() => setPos(new Point(x, y)), [x, y]);
+  const [pos, setPos] = useState(bounds.anchor);
+  useEffect(() => setPos(bounds.anchor), [bounds.anchor]);
 
   // Offset is only relevant while dragging, and holds the offset from the point clicked
   // to the anchor for this block.
@@ -34,7 +34,11 @@ function DraggableSvg({x, y, w, h, onPlace=()=>{}, children}) {
 
   return (
     <DraggableCore nodeRef={svgRef} onStart={onStart} onDrag={onDrag} onStop={onStop}>
-      <svg ref={svgRef} x={pos.x} y={pos.y} width={w} height={h} viewBox={`0 0 ${w} ${h}`}>
+      <svg ref={svgRef}
+        x={pos.x} y={pos.y}
+        width={bounds.width} height={bounds.height} 
+        viewBox={`0 0 ${bounds.width} ${bounds.height}`}
+      >
         {children}
       </svg>
     </DraggableCore>
