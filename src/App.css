@@ -1,0 +1,8 @@
+.markedPath {
+  stroke: black;
+  stroke-width: 10;
+  marker-start: url(#triangle);
+  marker-mid: url(#triangle);
+  marker-end: url(#triangle);
+  fill: none;
+}

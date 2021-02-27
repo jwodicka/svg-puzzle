@@ -44,6 +44,9 @@ const shuffle = (original) => {
 const distributeBlocks = (blocks, positions) =>
   shuffle(blocks).map((block) => block.moveTo(positions.pop()));
 
+const orderedDistributeBlocks = (blocks, positions) =>
+  blocks.reverse().map((block) => block.moveTo(positions.pop()));
+
 function Puzzle({picture, pictureDimensions, pieceDimensions}) {
   const pieceSize = {
     w: pictureDimensions.w / pieceDimensions.w,
@@ -85,7 +88,7 @@ function Puzzle({picture, pictureDimensions, pieceDimensions}) {
     }
 
     const blocks = pieces.map(RenderableBlock.fromPiece);
-    setBlocks(distributeBlocks(blocks, positions));
+    setBlocks(orderedDistributeBlocks(blocks, positions));
   }, [pieces]);
 
   // When a block is placed (i.e., when the drag ends), this method will
@@ -122,7 +125,7 @@ function Puzzle({picture, pictureDimensions, pieceDimensions}) {
       const neighborRelativeEdge = edge.relativeTo(neighbor.imageBounds.anchor);
       const neighborCurrentEdge = neighborRelativeEdge.plus(neighbor.anchor);
 
-      console.log(currentEdge.distance(neighborCurrentEdge));
+      // console.log(currentEdge.distance(neighborCurrentEdge));
 
       if (currentEdge.distance(neighborCurrentEdge) < 40) {
         merged.add(neighbor);
@@ -144,6 +147,13 @@ function Puzzle({picture, pictureDimensions, pieceDimensions}) {
   return (
     <svg viewBox={`0 0 ${viewW} ${viewH}`}>
       <defs>
+        <marker id="triangle" viewBox="0 0 10 10"
+          refX="1" refY="5"
+          markerUnits="strokeWidth"
+          markerWidth="4" markerHeight="4"
+          orient="auto" >
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#000"/>
+        </marker>
         <image id="picture"
           width={pictureDimensions.w} height={pictureDimensions.h} 
           href={picture} />

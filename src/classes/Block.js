@@ -37,9 +37,8 @@ export default class Block {
 
   get Polygon() {
     const [line, ...lines] = [...this.edges].map(e => e.line);
-    const polyline = line.polylineWith(lines);
-    const points = polyline.map((p) => `${p.x},${p.y}`).join(' ');
-    return () => (<polygon points={points} />);
+    const polygon = line.polygonWith(lines);
+    return () => (<path d={polygon.path} fillRule="evenodd" />);
   }
 
   moveTo(position) {
