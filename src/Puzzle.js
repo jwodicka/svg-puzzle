@@ -130,11 +130,11 @@ function Puzzle({picture, pictureDimensions, pieceDimensions}) {
     <svg viewBox={`0 0 ${viewW} ${viewH}`}>
       <defs>
         <marker id="triangle" viewBox="0 0 10 10"
-          refX="1" refY="5"
+          refX="5" refY="5"
           markerUnits="strokeWidth"
-          markerWidth="4" markerHeight="4"
+          markerWidth="20" markerHeight="20"
           orient="auto" >
-            <path d="M 0 0 L 10 5 L 0 10 z" fill="#000"/>
+            <path d="M 0 0 L 10 5 L 0 10 L 5 5 z" fill="#000" fillOpacity="0.5" />
         </marker>
         <image id="picture"
           width={pictureDimensions.w} height={pictureDimensions.h} 
