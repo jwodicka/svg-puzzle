@@ -2,6 +2,7 @@ import './Puzzle.css';
 
 import {useEffect, useState} from 'react';
 import {gridSlicer} from './Slicer';
+import {setIntersection, shuffle} from './collections';
 import Block from './components/Block';
 import RenderableBlock from './classes/Block';
 import Point from './classes/Point';
@@ -21,25 +22,6 @@ one Block encompassing all of the Pieces from both.
 
 When only one Block exists, the puzzle is solved.
 */
-
-const setIntersection = (setA, setB) => {
-  let _intersection = new Set()
-  for (let elem of setB) {
-      if (setA.has(elem)) {
-          _intersection.add(elem)
-      }
-  }
-  return _intersection
-}
-
-const shuffle = (original) => {
-  const array = [...original];
-  for (let i = array.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [array[i], array[j]] = [array[j], array[i]];
-  }
-  return array;
-}
 
 const distributeBlocks = (blocks, positions) =>
   shuffle(blocks).map((block) => block.moveTo(positions.pop()));

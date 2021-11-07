@@ -1,16 +1,5 @@
 import Box from "./Box";
-
-const setDisjunction = (setA, setB) => {
-  let _difference = new Set(setA)
-    for (let elem of setB) {
-        if (_difference.has(elem)) {
-            _difference.delete(elem)
-        } else {
-            _difference.add(elem)
-        }
-    }
-    return _difference
-}
+import {setDisjunction} from "../collections";
 
 export default class Block {
   static fromPiece(piece) {
